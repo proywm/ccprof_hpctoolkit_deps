@@ -1,0 +1,362 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!-- Manual page created with latex2man on Mon Nov 20 15:36:21 EST 2017 --
+-- Author of latex2man: Juergen.Vollmer@informatik-vollmer.de --
+-- NOTE: This file is generated, DO NOT EDIT. -->
+<html>
+<head><title>HPCRUN-FLAT</title></head>
+<body bgcolor="white">
+<h1 align=center>
+hpcrun-flat:<br>
+Statistical Profiling 
+</h1>
+<h4 align=center>The HPCToolkit Performance Tools </h4>
+<h4 align=center> 2011/02/22</h4>
+<h4 align=center>Version 2017.11</h4>
+<p>
+<tt>hpcrun-flat</tt>
+is a flat statistical sampling-based profiler. 
+It supports multiple sample sources during one execution and creates an IP (instruction pointer) histogram, or flat profile, for each sample source. 
+<tt>hpcrun-flat</tt>
+profiles complex applications (forks, execs, threads and dynamically loaded libraries) and may be used in conjunction with parallel process launchers such as MPICH's <tt>mpiexec</tt>
+and SLURM's <tt>srun</tt>.
+<p>
+See <a href="hpctoolkit.html"><em>hpctoolkit</em>(1)
+</a>for an overview of <strong>HPCToolkit</strong>.
+<p>
+<h3>Table of Contents</h3>
+<ul>
+<li><a href="#section_1">Synopsis </a></li>
+<li><a href="#section_2">Description </a></li>
+<li><a href="#section_3">Arguments </a>
+<ul>
+<li><a href="#section_4">Options: Informational </a></li>
+<li><a href="#section_5">Options: Profiling </a></li>
+</ul>
+<li><a href="#section_6">Examples </a></li>
+<li><a href="#section_7">Notes </a>
+<ul>
+<li><a href="#section_8">Sample sources </a></li>
+<li><a href="#section_9">Miscellaneous </a></li>
+</ul>
+<li><a href="#section_10">See Also </a></li>
+<li><a href="#section_11">Version </a></li>
+<li><a href="#section_12">License and Copyright </a></li>
+<li><a href="#section_13">Authors </a></li>
+</ul>
+<p>
+<h2><a name="section_1">Synopsis</a></h2>
+
+<p>
+<tt>hpcrun-flat</tt>
+[<b>profiling-options</b>]
+[<tt>--</tt>]
+<i>command</i>
+[<b>command-arguments</b>]
+<p>
+<tt>hpcrun-flat</tt>
+[<b>info-options</b>]
+<p>
+<h2><a name="section_2">Description</a></h2>
+
+<p>
+<tt>hpcrun-flat</tt>
+profiles the execution of an arbitrary command <i>command</i>
+using statistical sampling (rather than instrumentation). 
+It collects per-thread flat profiles, also known as IP (instruction pointer) histograms. 
+Sample points may be generated from multiple simultaneous sampling sources. 
+<tt>hpcrun-flat</tt>
+profiles complex applications that use forks, execs, and threads (but not dynamic linking/unlinking); it may be used in conjuction with parallel process launchers such as MPICH's <tt>mpiexec</tt>
+and SLURM's <tt>srun</tt>.
+<p>
+To configure <tt>hpcrun-flat</tt>'s
+sampling sources, specify events and periods using the <tt>-e/--event</tt>
+option. 
+For an event <em>e</em>
+and period <em>p</em>,
+after every <em>p</em>
+instances of <em>e</em>,
+a sample is generated that causes <tt>hpcrun</tt>
+to inspect the and record information about the monitored <i>command</i>.
+<p>
+When <i>command</i>
+terminates, per-thread profiles are written to files with the names of the form:<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>command</i>.hpcrun-flat.<i>hostname</i>.<i>pid</i>.<i>tid</i>
+<p>
+<tt>hpcrun-flat</tt>
+enables a user to abort a process and write the partial profiling data to disk by sending the Interrupt signal (INT or Ctrl-C). 
+This can be extremely useful on long-running or misbehaving applications. 
+<p>
+The special option <tt>--</tt>
+can be used to stop <tt>hpcrun-flat</tt>
+option parsing; this is especially useful when <i>command</i>
+takes arguments of its own. 
+<p>
+<h2><a name="section_3">Arguments</a></h2>
+
+<p>
+<dl compact>
+<dt><i>command</i>
+</dt>
+<dd> The command to profile. 
+</dd>
+<dt><i>command-arguments</i>
+</dt>
+<dd> Arguments to the command to profile. 
+</dd>
+</dl>
+<p>
+Default values for an option's optional arguments are shown in {}. 
+<p>
+<h4><a name="section_4">Options: Informational</a></h4>
+
+<p>
+<dl compact>
+<dt><b>-l</b>, <b>--list-events-short</b>
+</dt>
+<dd> List available events. (N.B.: some may not be profilable) 
+</dd>
+<dt><b>-L</b>, <b>---list-events-long</b>
+</dt>
+<dd> Similar to above but with more information. 
+</dd>
+<dt><b>--paths</b>
+</dt>
+<dd> Print paths for external PAPI and MONITOR. 
+</dd>
+<dt><b>-V</b>, <b>--version</b>
+</dt>
+<dd> Print version information. 
+</dd>
+<dt><b>-h</b>, <b>--help</b>
+</dt>
+<dd> Print help. 
+</dd>
+<dt><b>--debug</b> [<i>n</i>]
+</dt>
+<dd> Debug: use debug level <i>n</i>.
+{1} 
+</dd>
+</dl>
+<p>
+<h4><a name="section_5">Options: Profiling</a></h4>
+
+<p>
+<dl compact>
+<dt><b>-r</b> [<i>yes |no</i>], <b>--recursive</b> [<i>yes |no</i>]
+</dt>
+<dd> 
+Profile processes spawned by <i>command</i>.
+{no}. (Each process will receive its own output file.) 
+<p>
+</dd>
+<dt><b>-t</b> <i>mode</i>, <b>--threads</b> <i>mode</i>
+</dt>
+<dd> 
+Select thread profiling mode {each}: 
+<ul compact>
+<li><strong>each</strong> Create separate profiles for each thread.
+</li>
+<li><strong>all</strong> Create one combined profile of all threads.
+</li>
+</ul>
+Note that only POSIX threads are supported. 
+Also note that the WALLCLOCK event cannot be used in a multithreaded process. 
+<p>
+</dd>
+<dt><b>-e</b> <i>event[:period]</i>, <b>--event</b> <i>event[:period]</i>
+</dt>
+<dd> 
+An event to profile and its corresponding sample period. <i>event</i>
+may be either a PAPI or native processor event. May pass multiple times. {<tt>PAPI_TOT_CYC:999999</tt>} 
+<ul compact>
+<li>It is recommended to always specify the sampling period for each profiling event. 
+</li>
+<li>The special event WALLCLOCK may be used to profile the `wall clock.' It may be used only <em>once</em> and cannot be used with another event. It is an error to specify a period.
+</li>
+<li>Hardware and drivers 1) limit the maximum number of events that can be monitored simultaneously, and 2) forbid certain combinations of events. Check your documentation. 
+</li>
+<li>See the ``Sample sources'' under <strong>NOTES</strong> for additional details.
+</li>
+</ul>
+</dd>
+<dt><b>-o</b> [<i>outpath</i>], <b>--output</b> [<i>outpath</i>]
+</dt>
+<dd> Directory for output data. {<tt>.</tt>}
+</dd>
+<dt><b>--papi-flag</b> <i>flag</i>
+</dt>
+<dd> Profile style flag. {<tt>PAPI_POSIX_PROFIL</tt>} 
+</dd>
+</dl>
+<p>
+<h2><a name="section_6">Examples</a></h2>
+
+<p>
+Assume we wish to profile the application <tt>zoo</tt>.
+The following examples lists some useful events for different processor architectures. 
+In each case, the special option <tt>--</tt>
+is used to clearly demarcate the end of <tt>hpcrun-flat</tt>
+options. 
+<p>
+<ol compact>
+<li value =1><tt>hpcrun-flat -e WALLCLOCK -- zoo</tt> 
+</li>
+<li value =2>Opteron, (Rev B-F) 
+<ol compact>
+<li value =1><tt>hpcrun-flat -e DC_L2_REFILL:1300013 -e PAPI_L2_DCM:510011 -e PAPI_STL_ICY:5300013 -e PAPI_TOT_CYC:13000019 -- zoo</tt> (<tt>DC_L2_REFILL</tt> is an approximation of L1 D-cache misses). 
+</li>
+<li value =2><tt>hpcrun-flat -e PAPI_L2_DCM:510011 -e PAPI_TLB_DM:510013 -e PAPI_STL_ICY:5300013 -e PAPI_TOT_CYC:13000019 -- zoo</tt> 
+</li>
+</ol>
+<p>
+</li>
+<li value =3>Pentium IV 
+<ol compact>
+<li value =1><tt>hpcrun-flat -e PAPI_TOT_CYC:30000001 -e PAPI_TOT_INS:3000001 -e PAPI_FP_INS:1000001 -e PAPI_LD_INS:1000001 -e PAPI_TLB_TL:32767 -e PAPI_L2_TCM:32767 -e PAPI_RES_STL:1000001 -e BSQ_cache_reference_RD_3rdL_MISS -- zoo</tt> 
+</li>
+<li value =2><tt>hpcrun-flat -e PAPI_SR_INS:1000001 -e PAPI_L1_DCM:32767 -e resource_stall_SBFULL:32767 -- zoo</tt> 
+</li>
+<li value =3><tt>hpcrun-flat -e PAPI_FP_OPS:32767 -e PAPI_BR_MSP:32767 -- zoo</tt> 
+</li>
+</ol>
+<p>
+</li>
+<li value =4>Itanium 2 
+<ol compact>
+<li value =1><tt>hpcrun-flat -e BE_EXE_BUBBLE_ALL:344221 -e BE_L1D_FPU_BUBBLE_ALL:344221 -e FE_BUBBLE_ALL:144221 -e PAPI_TOT_CYC:344221 -- zoo</tt> 
+</li>
+<li value =2><tt>hpcrun-flat -e PAPI_L1_DCM:144221 -e PAPI_FP_OPS:344221 -e PAPI_TOT_CYC:1044221 -- zoo</tt> 
+</li>
+<li value =3>Cycle accounting events: <tt>BACK_END_BUBBLE_ALL</tt>, <tt>BE_EXE_BUBBLE_ALL</tt>, <tt>BE_L1D_FPU_BUBBLE_ALL</tt>, <tt>BE_FLUSH_BUBBLE_ALL</tt>, <tt>BE_RSE_BUBBLE_ALL</tt>, <tt>FE_BUBBLE_ALL</tt> 
+</li>
+</ol>
+<p>
+</li>
+</ol>
+<p>
+<h2><a name="section_7">Notes</a></h2>
+
+<p>
+<h4><a name="section_8">Sample sources</a></h4>
+
+<p>
+<tt>hpcrun-flat</tt>
+uses the PAPI library to provide access to hardware performance counter events. 
+If you have not configured HPCToolkit to use the PAPI library, you will be unable to measure hardware performance counter events. 
+<p>
+The PAPI library supports a large collection of hardware counter events. 
+Some events have standard names across all platforms, e.g. <tt>PAPI_TOT_CYC</tt>, the event that measures total cycles. 
+In addition to events whose names begin with the <tt>PAPI_</tt> prefix, platforms also provide access to a set of native events with names that are specific to the platform's processor. 
+A complete list of events supported by the PAPI library for your platform may be obtained by using the <tt>--list-events</tt>
+option. 
+Any event whose name begins with the <tt>PAPI_</tt> prefix that is listed as "Profilable" can be used as an event in a sampling source --- provided it does not conflict with another event. 
+<p>
+The precise rules for selecting good events and periods are complex. 
+<ul compact>
+<p>
+<li><strong>Choosing sampling events.</strong>
+We recommend using PAPI events in general. 
+However, some PAPI events are not profilable because of PAPI implementation details. 
+Also, PAPI's standard event list may not cover an architectural feature you are interested in. 
+In such cases, it is necessary to resort to native events. 
+In many cases, you will have to consult the architecture's manual to fully understand what the event means: there is no standard event list or naming scheme and events sometimes have unusual meanings. 
+<p>
+</li>
+<li><strong>Number of sampling events.</strong>
+Currently, hpcrun does not multiplex hardware counters. 
+This means that the number of events that you may concurrently profile against is limited by your architecture's performance monitoring unit. 
+Note that some architectures hard-wire one or more counters to a specific event (such as cycles). 
+<p>
+</li>
+<li><strong>Choosing sampling periods.</strong>
+The key requirement in choosing sampling periods is that you obtain enough samples to provide statistical significance. 
+We usually recommend a sampling rate between 100s-1000s of samples per second. 
+This usually only produces 1-5% execution time overhead. 
+<p>
+Choosing sampling rates depends on the architecture and sometimes the application. 
+<p>
+Choosing periods for cycle and instruction-related events are usually easy. 
+Cycles directly relates to the clock speed. 
+Instruction-related events relates to the issue rate and width. 
+<p>
+Choosing periods for other events seems harder because different applications uses resources differently. 
+For example, some applications are memory intensive and others are not. 
+However, if the goal is to identify rate-limiting factors of the architecture, then it is not necessary to consider the application. 
+For example, if the goal is to determine whether L2 D-cache latency is a limiting factor, then it is only necessary to work backward from the architecture's specifications to determine what number of L2 D-cache misses per second would be problematic. 
+<p>
+</li>
+<li><strong>Architectural event conflicts.</strong>
+With some performance monitoring units, certain events may not be concurrently used with other events. 
+<p>
+</li>
+<li><strong>Architectural interrupt delay.</strong>
+On most out-of-order pipelined architectures, a hardware counter interrupt is not precisely attributed to the instruction that induced the counter to overflow. 
+The gap is commonly 50-70 instructions. 
+This means that one should not assume that aggregation at the source line level is fully precise. 
+(E.g., if a L1 D-cache miss is attributed to a statement that has been compiled to register-only operations, assume the miss is attributed to a nearby load.) 
+However, aggregation at the procedure and loop level is reliable. 
+<p>
+</li>
+<li><strong>System itimer (WALLCLOCK).</strong>
+On Linux systems, the kernel will not deliver itimer interrupts faster than the unit of a jiffy, which defaults to 4 milliseconds. 
+One can configure the kernel to use a value as small as 1 millisecond, but it is unlikely the kernel will actually deliver itimer signals at that rate when a period of 1000 microseconds is requested. 
+<p>
+However, on Linux one can get quite close to the kernel Hz rate by setting the itimer interval to something less than the Hz rate. 
+For example, if the Hz rate is 1000 microseconds, one can use 500 microseconds (or just 1) and obtain about 999 interrupts per second. 
+</li>
+</ul>
+<p>
+<h4><a name="section_9">Miscellaneous</a></h4>
+
+<p>
+<ul compact>
+<li><tt>hpcrun-flat</tt> uses preloaded shared libraries to initiate profiling. For this reason, it cannot be used to profile setuid programs.
+</li>
+<li>For the same reason, it cannot profile statically linked applications. 
+</li>
+<li>Bug: <tt>hpcrun-flat</tt> cannot currently profile programs that themselves use preloading.
+</li>
+</ul>
+<p>
+<h2><a name="section_10">See Also</a></h2>
+
+<p>
+<a href="hpctoolkit.html"><em>hpctoolkit</em>(1)
+</a>.
+<p>
+<h2><a name="section_11">Version</a></h2>
+
+<p>
+Version: 2017.11 of  2011/02/22.
+<p>
+<h2><a name="section_12">License and Copyright</a></h2>
+
+<p>
+<dl compact>
+<dt>Copyright</dt>
+<dd> &copy; 2002-2017, Rice University. 
+</dd>
+<dt>License</dt>
+<dd> See <tt>README.License</tt>.
+</dd>
+</dl>
+<p>
+<h2><a name="section_13">Authors</a></h2>
+
+<p>
+Nathan Tallent <br>
+
+John Mellor-Crummey <br>
+
+Rob Fowler <br>
+
+Rice HPCToolkit Research Group <br>
+
+Email: <a href ="mailto:hpctoolkit-forum =at= rice.edu"><tt>hpctoolkit-forum =at= rice.edu</tt></a>
+<br>
+WWW: <a href ="http://hpctoolkit.org"><tt>http://hpctoolkit.org</tt></a>.
+<p>
+</body>
+</html>
+<!-- NOTE: This file is generated, DO NOT EDIT. -->

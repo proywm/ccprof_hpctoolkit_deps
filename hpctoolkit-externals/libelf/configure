@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+#  Libelf/Elfutils configure.
+#
+#  Note: elfutils requires zlib as a prerequisite, but does not use
+#  --with-zlib as the path to zlib install.  Instead, specify zlib
+#  directories with CPPFLAGS and LDFLAGS.
+#
+#  $Id$
+#
+
+PKG_NAME=libelf
+SRC=elfutils-0.167
+
+. ../build-utils/configure.inc
+pre_configure
+prefix="$libelf_prefix"
+
+set --  \
+    --prefix="$prefix"  \
+    CC="$CC"  \
+    CFLAGS="$CFLAGS"  \
+    CPPFLAGS="-I${zlib_inc}"  \
+    LDFLAGS="-L${zlib_lib}"
+
+if test -n "${is_cross_compile}" ; then
+    set -- --host="${host}" "$@"
+fi
+
+make_work_dir
+cd work || die "unable to cd: work"
+
+echo configure "$@"
+../${SRC}/configure "$@"
+test $? -eq 0 || die "configure failed"
+
+post_configure

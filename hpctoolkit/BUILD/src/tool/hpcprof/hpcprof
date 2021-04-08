@@ -1,0 +1,134 @@
+#!/bin/sh
+# set -x
+#
+#------------------------------------
+# Part of HPCToolkit (hpctoolkit.org)
+#------------------------------------
+#
+# Copyright (c) 2002-2017, Rice University.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#
+# * Neither the name of Rice University (RICE) nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# This software is provided by RICE and contributors "as is" and any
+# express or implied warranties, including, but not limited to, the
+# implied warranties of merchantability and fitness for a particular
+# purpose are disclaimed. In no event shall RICE or contributors be
+# liable for any direct, indirect, incidental, special, exemplary, or
+# consequential damages (including, but not limited to, procurement of
+# substitute goods or services; loss of use, data, or profits; or
+# business interruption) however caused and on any theory of liability,
+# whether in contract, strict liability, or tort (including negligence
+# or otherwise) arising in any way out of the use of this software, even
+# if advised of the possibility of such damage.
+#
+# $Id$
+#
+# Launch script for hpcprof.
+#
+#------------------------------------------------------------
+# Values from configure
+#------------------------------------------------------------
+
+# If this script can't find its own install prefix, or if it's
+# moved elsewhere, then set HPCTOOLKIT here.
+# HPCTOOLKIT='/home/proy/CCProf/CCProf/hpcToolKit/installDir'
+
+VERSION='2017.11'
+
+# Relative paths are relative to HPCTOOLKIT.
+ext_libs_dir='lib/hpctoolkit/ext-libs'
+libexec_dir='libexec/hpctoolkit'
+
+# Should be absolute path.
+libcxx_path='/usr/lib/gcc/x86_64-linux-gnu/5'
+
+prog_name=hpcprof
+binary_name=hpcprof-bin
+
+#------------------------------------------------------------
+# Find path to this script
+#------------------------------------------------------------
+
+hpc_path_to_root=..
+#
+# Set and export HPCTOOLKIT to the root dir of the install (prefix).
+# If HPCTOOLKIT already names a valid directory, then use that, else
+# try to find the root directory from $0.
+#
+hpc_path_to_root="${hpc_path_to_root:-..}"
+valid_hpctoolkit_dir()
+{
+    test -d "$1" && test -d "$1/lib/hpctoolkit"
+}
+
+# Warn if HPCTOOLKIT is set improperly, set to abs path if ok.
+if test "x$HPCTOOLKIT" != x ; then
+    if valid_hpctoolkit_dir "$HPCTOOLKIT" ; then
+	HPCTOOLKIT=`( cd "$HPCTOOLKIT" 2>/dev/null && pwd )`
+    else
+	echo "Warning: invalid HPCTOOLKIT directory: $HPCTOOLKIT" 1>&2
+    fi
+fi
+
+# Try dirname of $0, dereference symlink if needed.
+if valid_hpctoolkit_dir "$HPCTOOLKIT" ; then :
+else
+    if test -L "$0" ; then
+	hpc_file=`readlink "$0"`
+    else
+	hpc_file="$0"
+    fi
+    hpc_dir=`dirname "$hpc_file"`
+    HPCTOOLKIT=`( cd "${hpc_dir}/${hpc_path_to_root}" 2>/dev/null && pwd )`
+fi
+
+if valid_hpctoolkit_dir "$HPCTOOLKIT" ; then :
+else
+    cat <<EOF >&2
+
+$0: Unable to find HPCTOOLKIT root directory.
+Please set HPCTOOLKIT to the install prefix, either in this script,
+or in your environment, and try again.
+EOF
+    exit 1
+fi
+
+export HPCTOOLKIT
+
+#------------------------------------------------------------
+# Set environment and exec
+#------------------------------------------------------------
+
+case "$1" in
+    -V | -version | --version )
+	echo "${prog_name}: A member of HPCToolkit, version $VERSION"
+	exit 0
+	;;
+esac
+
+# Relative paths are relative to HPCTOOLKIT.
+case "$ext_libs_dir" in
+    /* ) ;;
+    * )  ext_libs_dir="${HPCTOOLKIT}/${ext_libs_dir}" ;;
+esac
+case "$libexec_dir" in
+    /* ) ;;
+    * )  libexec_dir="${HPCTOOLKIT}/${libexec_dir}" ;;
+esac
+
+export LD_LIBRARY_PATH="${ext_libs_dir}:${libcxx_path}:${LD_LIBRARY_PATH}"
+exec "${libexec_dir}/${binary_name}" "$@"

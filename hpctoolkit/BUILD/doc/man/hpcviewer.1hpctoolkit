@@ -1,0 +1,237 @@
+'\" t
+.\" Manual page created with latex2man on Mon Nov 20 15:36:21 EST 2017
+.\" NOTE: This file is generated, DO NOT EDIT.
+.de Vb
+.ft CW
+.nf
+..
+.de Ve
+.ft R
+
+.fi
+..
+.TH "HPCVIEWER" "1" " 2012/09/21" "The HPCToolkit Performance Tools " "The HPCToolkit Performance Tools "
+.SH NAME
+
+.PP
+The Java\-based hpcviewer
+interactively presents program performance in a top\-down fashion. 
+.PP
+.SH SYNOPSIS
+
+.PP
+Command\-line usage:
+.br
+\fB \fP\fB \fP\fB \fPhpcviewer
+[\fBoptions\fP]
+[\fBhpctoolkit\-database\fP]
+.PP
+GUI usage:
+.br
+\fB \fP\fB \fP\fB \fPLaunch hpcviewer
+and open the Experiment database [\fBhpctoolkit\-database\fP]\&.
+.PP
+.SH DESCRIPTION
+
+.PP
+The Java\-based hpcviewer
+interactively presents program\-performance Experiment databases in a top\-down fashion. 
+Since Experiment databases are self\-contained, they may be relocated from a cluster for visualization on a laptop or workstation. 
+.PP
+.SH ARGUMENTS
+
+.PP
+.TP
+\fIhpctoolkit\-database\fP
+ An HPCToolkit Experiment database, which is the result of executing hpcprof,
+hpcprof\-mpi
+or hpcprof\-flat\&.
+.PP
+.SS OPTIONS
+.PP
+.TP
+\fB\-n\fP
+ Do not display the Callers View. (Saves memory and time.) 
+.PP
+.TP
+\fB\-consolelog\fP
+ Send log entries to a console in addition to a log file. 
+.PP
+.TP
+\fB\-debug\fP
+ Log additional information about plug\-in dependency problems. 
+.PP
+.SH DETAILED DESCRIPTION
+
+.PP
+.SS VIEWS
+.PP
+hpcviewer
+supports three principal views of an application\&'s performance data. Both inclusive (costs of a procedure including all its callees) and exclusive costs (costs excluding callees) are reported. 
+.PP
+.TP
+.B *
+\fBCalling context view.\fP
+A top\-down view that represents the dynamic calling contexts (call paths) in which costs were incurred. 
+Using this view, one can explore performance measurements of an application in a top\-down fashion to understand the costs incurred by calls to a procedure in a particular calling context. 
+.PP
+.TP
+.B *
+\fBCallers view.\fP
+This bottom\-up view enables one to look upward along call paths. 
+The view apportions a procedure\&'s costs to its caller and, more generally, its calling contexts. 
+This view is particularly useful for understanding the performance of software components or procedures that are used in more than one context. 
+.PP
+.TP
+.B *
+\fBFlat view.\fP
+This view organizes performance measurement data according to the static structure of an application. 
+All costs incurred in \fIany\fP
+calling context by a procedure are aggregated together in the flat view. 
+.PP
+.SS PANES
+.PP
+The browser window is divided into three panes: 
+.PP
+.TP
+.B *
+\fBSource pane.\fP The source code associated with the current entity selected in the navigation pane.
+Selecting any entity in the navigation pane will cause the source pane to load the corresponding file, scroll to and highlight the line corresponding to the selection. 
+.PP
+.TP
+.B *
+\fBNavigation pane.\fP
+The navigation pane presents a hierarchical tree\-based structure that is used to organize the presentation of an application\&'s performance data. 
+Entities that occur in the navigation pane\&'s tree include load modules, files, procedures, procedure activations, inlined code, loops, and source lines. 
+Entities can be selected; and children can be revealed or concealed. 
+.PP
+The nature of the entities in the navigation pane\&'s tree structure depends upon whether one is exploring the calling context view, the callers view, or the flat view of the performance data. 
+.PP
+.RS
+.TP
+.B *
+In the calling context view, entities in the navigation tree represent procedure activations, inlined code, loops, and source lines. 
+While most entities link to a single location in source code, procedure activations link to two: the call site from which a procedure was called and the procedure itself. 
+.TP
+.B *
+In the callers view, entities in the navigation tree are procedure activations. Unlike procedure activations in the calling context tree view in which call sites are paired with the called procedure, in the caller\&'s view, call sites are paired with the calling procedure to facilitate attribution of costs for a called procedure to multiple different call sites and callers. 
+.TP
+.B *
+In the flat view, entities in the navigation tree correspond to source files, procedure call sites (which are rendered the same way as procedure activations), loops, and source lines. 
+.RE
+.RS
+.PP
+The header above the navigation pane contains flatten and zoom control. 
+.RS
+.RE
+.TP
+.B *
+\fBUp arrow.\fP Zooms to show only information for the selected line and its descendants.
+.TP
+.B *
+\fBDown arrow.\fP Zooms out (reversing a prior zoom operation).
+.TP
+.B *
+\fBHot path\fP\&. The button activates "\fIhot path analysis\fP", which automatically expands the scopes along the hot path for the selected metric in the subtree rooted at the selected scope. It is a convenient way to find a performance bottleneck of a given metric.
+.TP
+.B *
+\fBDerived metric\fP\&. Creation of a new metric based on spreadsheet\-like mathematical formulae.
+.TP
+.B *
+\fBFilter metrics\fP\&. Show or hide metrics.
+.TP
+.B *
+\fBCSV export\fP\&. Export information from the current view to a comma separated values (CSV) file.
+.TP
+.B *
+\fBBigger font\fP\&. Change the current font with a bigger size font.
+.TP
+.B *
+\fBSmaller font\fP\&. Change the current font with a smaller size font.
+.TP
+.B *
+\fBFlatten.\fP (flat view only) Flattening (the icon that shows a tree node with a slash through it) replaces each top\-level scope shown with its children. If a scope has no children (i.e., it is a leaf), the node will remain in the view. This flattening operation is useful for relaxing the strict hierarchical view so that peers at the same level in the tree can be viewed and ranked together. For instance, this can be used to hide procedures in the flat view so that outermost loops can be ranked and compared to one another.
+.TP
+.B *
+\fBUnflatten.\fP (flat view only) The inverse of the flatten operation, making an elided node visible again.
+.RS
+.PP
+.RE
+.RE
+.PP
+.RE
+.TP
+.B *
+\fBMetric pane.\fP
+The metric pane displays one or more performance metrics associated with entities to the left in the navigation pane. 
+Entities in the tree view of the navigation pane are sorted at each level of the hierarchy by the metric in the selected column. 
+.PP
+.SS THREAD\-CENTRIC PLOTS
+.PP
+hpcviewer
+can display plot graphs of thread\-level metric 
+values. This is useful for quickly assessing load imbalance across 
+processes and threads. 
+.PP
+To create a graph, use the calling context view and select a scope by 
+left\-clicking a line in the navigation pane. 
+Then, right\-click the selected scope to show the context menu. (This 
+menu begins with `Zoom\-in\&' and `Zoom\-out.\&') 
+At the bottom of the context menu is a list of metrics that 
+hpcviewer
+can graph. 
+Each metric contains a sub\-menu that lists the three different types 
+of graphs that hpcviewer
+can plot. 
+The \fIPlot\fP
+graph sorts the processes by process and thread 
+number. 
+The \fISorted plot\fP
+graph sorts the processes by metric value. 
+And the \fIHistogram\fP
+graph shows a bar graph of the 
+frequency of metric values. 
+.PP
+Note: currently, these plot graphs are available only with databases 
+created by hpcprof\-mpi
+and not by hpcprof\&.
+See the section on ``\fIPlotting Graphs of Thread\-level Metric Values\fP\&''
+in the User\&'s Manual for more description and a view of a plot graph. 
+.PP
+.SH SEE ALSO
+
+.PP
+\fIhpctoolkit\fP(1)
+\&.
+.PP
+.SH VERSION
+
+.PP
+Version: 2017.11 of  2012/09/21\&.
+.PP
+.SH LICENSE AND COPYRIGHT
+
+.PP
+.TP
+Copyright 
+(C)2002\-2017, Rice University. 
+.TP
+License 
+See README.License\&.
+.PP
+.SH AUTHORS
+
+.PP
+Laksono Adhianto 
+.br
+John Mellor\-Crummey 
+.br
+Nathan Tallent 
+.br
+Rice HPCToolkit Research Group 
+.br
+Email: \fBhpctoolkit\-forum =at= rice.edu\fP
+.br
+WWW: \fBhttp://hpctoolkit.org\fP\&.
+.PP
+.\" NOTE: This file is generated, DO NOT EDIT.

@@ -1,0 +1,484 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!-- Manual page created with latex2man on Mon Nov 20 15:36:21 EST 2017 --
+-- Author of latex2man: Juergen.Vollmer@informatik-vollmer.de --
+-- NOTE: This file is generated, DO NOT EDIT. -->
+<html>
+<head><title>HPCPROF-FLAT</title></head>
+<body bgcolor="white">
+<h1 align=center>
+hpcprof-flat:<br>
+Correlation of Flat Profile Metrics with Static Program Structure 
+</h1>
+<h4 align=center>The HPCToolkit Performance Tools </h4>
+<h4 align=center> 2011/02/22</h4>
+<h4 align=center>Version 2017.11</h4>
+<p>
+<tt>hpcprof-flat</tt>
+correlates `flat' (IP histograms) profile metrics with static source code structure. See <a href="hpctoolkit.html"><em>hpctoolkit</em>(1)
+</a>for an overview of <strong>HPCToolkit</strong>.
+<p>
+<h3>Table of Contents</h3>
+<ul>
+<li><a href="#section_1">Synopsis </a></li>
+<li><a href="#section_2">Description </a></li>
+<li><a href="#section_3">Arguments </a>
+<ul>
+<li><a href="#section_4">Options: General </a></li>
+<li><a href="#section_5">Options: Source Structure Correlation </a></li>
+<li><a href="#section_6">Options: Output </a></li>
+<li><a href="#section_7">Output Formats </a></li>
+</ul>
+<li><a href="#section_8">Configuration File </a></li>
+<li><a href="#section_9">Examples </a>
+<ul>
+<li><a href="#section_10">Derived or Computed Metrics </a></li>
+</ul>
+<li><a href="#section_11">See Also </a></li>
+<li><a href="#section_12">Version </a></li>
+<li><a href="#section_13">License and Copyright </a></li>
+<li><a href="#section_14">Authors </a></li>
+</ul>
+<p>
+<h2><a name="section_1">Synopsis</a></h2>
+
+<p>
+<tt>hpcprof-flat</tt>
+[<b>output-options</b>]
+[<b>correlation-options</b>]
+<i>profile-file</i>...
+<p>
+<tt>hpcprof-flat</tt>
+[<b>output-options</b>]
+--config <i>config-file</i>
+<p>
+<h2><a name="section_2">Description</a></h2>
+
+<p>
+<tt>hpcprof-flat</tt>
+correlates flat profiling metrics with static source code structure and (by default) generates an Experiment database for use with <a href="hpcviewer.html"><em>hpcviewer</em>(1)
+</a>.
+<tt>hpcprof-flat</tt>
+is invoked in one of two ways. 
+In the former, correlation options are specified on the command line along with a list of flat profile files. 
+In the latter, these options along with derived metrics are specified in the configuration file <i>config-file</i>.
+Note that the first mode is generally sufficient since derived metrics may be computed in <a href="hpcviewer.html"><em>hpcviewer</em>(1)
+</a>.
+However, to facilitate the batch processing of the second mode, during the first mode, a sample configuration file (<tt>config.xml</tt>)
+is generated within the Experiment database. 
+See the section <em>Configuration File</em>
+below for more details about its syntax. 
+<p>
+For optimal results, structure information from <a href="hpcstruct.html"><em>hpcstruct</em>(1)
+</a>should be provided.
+Without structure information, hpcprof-flat will default to correlation using line map information. 
+<p>
+<h2><a name="section_3">Arguments</a></h2>
+
+<p>
+<dl compact>
+<dt><i>profile-file...</i>
+</dt>
+<dd> A list of flat profile files. 
+</dd>
+<dt><i>config-file</i>
+</dt>
+<dd> The <tt>hpcprof-flat</tt>
+configuration file. 
+</dd>
+</dl>
+<p>
+Default values for an option's optional arguments are shown in {}. 
+<p>
+<h4><a name="section_4">Options: General</a></h4>
+
+<p>
+<dl compact>
+<dt><b>-v</b> [<i>n</i>], <b>--verbose</b> [<i>n</i>]
+</dt>
+<dd> 
+Verbose: generate progress messages to stderr at verbosity level <i>n</i>.
+{1} (Use n=3 to debug path replacement if metric and program structure is not properly matched.) 
+<p>
+</dd>
+<dt><b>-V</b>, <b>--version</b>
+</dt>
+<dd> 
+Print version information. 
+<p>
+</dd>
+<dt><b>-h</b>, <b>--help</b>
+</dt>
+<dd> 
+Print help. 
+<p>
+</dd>
+<dt><b>--debug</b> [<i>n</i>]
+</dt>
+<dd> 
+Debug: use debug level <i>n</i>.
+{1} 
+</dd>
+</dl>
+<p>
+<h4><a name="section_5">Options: Source Structure Correlation</a></h4>
+
+<p>
+<dl compact>
+<dt><b>--name</b> <i>name</i>, <b>--title</b> <i>name</i>
+</dt>
+<dd> 
+Set the database's name (title) to <i>name</i>.
+<p>
+</dd>
+<dt><b>-I</b> <i>path</i>, <b>--include</b> <i>path</i>
+</dt>
+<dd> 
+Use <i>path</i>
+when searching for source files. For a recursive search, append a '*' after the last slash, e.g., <tt>'/mypath/*'</tt> (quote or escape to protect from the shell). May pass multiple times. 
+<p>
+</dd>
+<dt><b>-S</b> <i>file</i>, <b>--structure</b> <i>file</i>
+</dt>
+<dd> 
+Use <a href="hpcstruct.html"><em>hpcstruct</em>(1)
+</a>structure file <i>file</i>
+for correlation. May pass multiple times (e.g., for shared libraries). 
+<p>
+</dd>
+<dt><b>-R</b> <i>'old-path=new-path'</i>, <b>--replace-path</b> <i>'old-path=new-path'</i>
+</dt>
+<dd> 
+Substitute instances of <i>old-path</i>
+with <i>new-path</i>;
+apply to all paths (e.g., a profile's load map and source code) for which <i>old-path</i>
+is a prefix. Use '<br>
+'to escape instances of '=' within a path. May pass multiple times. 
+<p>
+Use this option when a profile or binary contains references to files that have been relocated, such as might occur with a file system change. 
+</dd>
+</dl>
+<p>
+<h4><a name="section_6">Options: Output</a></h4>
+
+<p>
+<dl compact>
+<dt><b>-o</b> <i>db-path</i>, <b>--db</b> <i>db-path</i>, <b>--output</b> <i>db-path</i>
+</dt>
+<dd> Specify Experiment database name <i>db-path</i>.
+{<tt>./experiment-db</tt>}
+</dd>
+<dt><b>--src</b> [<i>yes | no</i>], <b>--source</b> [<i>yes | no</i>]
+</dt>
+<dd> Whether to copy source code files into Experiment database. {yes} By default, <tt>hpcprof-flat</tt>
+copies source files with performance metrics and that can be reached by PATH/REPLACE statements, resulting in a self-contained dataset that does not rely on an external source code repository. Note that if copying is suppressed, the database is no longer self-contained. 
+</dd>
+</dl>
+<p>
+<h4><a name="section_7">Output Formats</a></h4>
+
+<p>
+Select different output formats and optionally specify the output filename <i>file</i>
+(located within the Experiment database). The output is sparse in the sense that it ignores program areas without profiling information. (Set <i>file</i>
+to '-' to write to stdout.) 
+<p>
+<dl compact>
+<dt><b>-x</b> [<i>file</i>], <b>--experiment</b> [<i>file</i>]
+</dt>
+<dd> Default. ExperimentXML format. {<tt>experiment.xml</tt>}.
+NOTE: To disable, set <i>file</i>
+to <tt>no</tt>. 
+</dd>
+</dl>
+<p>
+<h2><a name="section_8">Configuration File</a></h2>
+
+<p>
+A <tt>hpcprof-flat</tt>
+configuration file is an XML document of type <tt>HPCPROF</tt>.
+The following briefly describes its syntax. 
+<p>
+<ul compact>
+<p>
+<li>Begin document type. 
+<ul compact>
+<tt>&lt;HPCPROF&gt;</tt> 
+</li>
+</ul>
+<p>
+</li>
+<li>(Optional) Use <i>my-title</i> to name the Experiment database.
+<ul compact>
+<tt>&lt;TITLE name="</tt><i>my-title</i><tt>"/&gt;</tt>
+</li>
+</ul>
+<p>
+</li>
+<li>(Optional) A set of PATH directives specifying path names to search for source files. 
+<i>path</i>
+is a relative or absolute path containing source code to which performance data should be correlated. 
+In order to recursively search a directory, append an escaped `<tt>*</tt>'
+after the last slash, e.g., <tt>/mypath/\*</tt> (escaping is for the shell). 
+<ul compact>
+<tt>&lt;PATH name="</tt><i>path</i><tt>"/&gt;</tt>
+</li>
+</ul>
+<p>
+</li>
+<li>(Optional) A set of REPLACE directives can be used to define one path prefix to operationally match another prefix occuring in profile data files or in a program structure file. This can be particularly useful when trying to compare performance metrics between machines with different file structures, e.g., because the executables or the source files are installed in different places. 
+<ul compact>
+<tt>&lt;REPLACE in="</tt><i>old-path-prefix</i><tt>"</tt>
+<tt>out="</tt><i>new-path-prefix</i><tt>"</tt>
+<tt>/&gt;</tt>
+</li>
+</ul>
+<p>
+</li>
+<li>(Optional) A set of STRUCTURE directives providing program structure files created using <a href="hpcstruct.html"><em>hpcstruct</em>(1)
+</a>.
+<ul compact>
+<tt>&lt;STRUCTURE name="</tt><i>program.psxml</i><tt>"/&gt;</tt><br>
+
+<tt>&lt;STRUCTURE name="</tt><i>key-dso1.psxml</i><tt>"/&gt;</tt><br>
+
+<tt>&lt;STRUCTURE name="</tt><i>key-dso2.psxml</i><tt>"/&gt;</tt><br>
+
+</li>
+</ul>
+<p>
+</li>
+<li>One or more metrics. A metric may be of two types, native or derived. Metrics are introduced using the <tt>METRIC</tt> element
+<p>
+<ul compact>
+<tt>&lt;METRIC name="</tt><i>name</i><tt>"</tt>
+<tt>displayName="</tt><i>name-in-display</i><tt>"</tt>
+<tt>display="</tt><tt>true|false</tt><tt>"</tt>
+<tt>percent="</tt><tt>true|false</tt><tt>"&gt;</tt><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<tt>...</tt><br>
+
+<tt>&lt;/METRIC&gt;</tt>
+</li>
+</ul>
+<p>
+which has several attributes. 
+<p>
+<ul compact>
+<li><strong>name</strong>. A unique name. This name is used when creating derived metrics that are expressions of other metrics.
+</li>
+<li><strong>displayName</strong>. A display name needs not be unique.
+</li>
+<li><strong>display</strong>. Controls metric visibility. One might read a metric and not display it because it is only useful as input to some computed metric.
+</li>
+<li><strong>percent</strong>. Indicates whether the viewer should display a column of percentages computed as the ratio of the metric for this scope to the metric for the whole program. Percents are useful when metrics are computed by summing contributions from descendants in the scope tree, but are meaningless for computed metrics such as ratio of flops/memory access in a scope.
+</li>
+</ul>
+<p>
+The two metric types are 
+<ul compact>
+<li><strong>Native or FILE metrics</strong>. This metric is read from a file which can be of type HPCRUN (from 
+<a href="hpcrun-flat.html"><em>hpcrun-flat</em>(1)
+</a>) or PROFILE (from <em>hpcproftt</em>(1)).
+<p>
+<tt>&lt;METRIC name="m1" ...&gt;</tt><br>
+
+<tt>&lt;FILE name="</tt><i>file1</i><tt>"</tt>
+<tt>select="</tt><i>short-name-in-file1</i><tt>"</tt>
+<tt>type="</tt><tt>HPCRUN|PROFILE</tt><tt>"/></tt><br>
+
+<tt>&lt;/METRIC&gt;</tt><br>
+
+<p>
+Since a file may contain multiple metrics, the <tt>FILE</tt>
+element has an optional `select' attribute to identify a particular metric from the file. Metrics are identified by their `shortName' values which are typically zero-based indices. The default `select' value is 0, which corresponds to the first metric. 
+<p>
+There is one important difference in how each type is handled. HPCRUN files are correlated to source code using the object code addresses annotations of STRUCTURE files; thus, they require valid STRUCTURE information. In contrast, PROFILE files are correlated by source line level information. 
+<p>
+</li>
+<li><strong>Derived or COMPUTE metrics.</strong> Derived metrics are specified by a <tt>COMPUTE</tt> element containing a MathML equation in terms of metrics defined earlier in the HPCPROF document. <tt>hpcprof-flat</tt> supports the following operands
+<ul compact>
+<li><strong>constants</strong>: 
+<tt>&lt;cn&gt;2&lt;/cn&gt;</tt> 
+</li>
+<li><strong>variables</strong>: 
+<tt>&lt;ci&gt;m1&lt;/ci&gt;</tt> (used to refer to other metrics) 
+</li>
+</ul>
+and the following MathML operators (used within <tt>&lt;apply&gt;</tt>): 
+<ul compact>
+<li><strong>negation</strong>: 
+<tt>&lt;minus/&gt;</tt> (1-ary) 
+</li>
+<li><strong>subtraction</strong>: 
+<tt>&lt;minus/&gt;</tt> (2-ary) 
+</li>
+<li><strong>addition</strong>: 
+<tt>&lt;plus/&gt;</tt> (n-ary) 
+</li>
+<li><strong>multiplication</strong>: 
+<tt>&lt;times/&gt;</tt> (n-ary) 
+</li>
+<li><strong>division</strong>: 
+<tt>&lt;divide/&gt;</tt> (2-ary) 
+</li>
+<li><strong>exponentiation</strong>: 
+<tt>&lt;power/&gt;</tt> (2-ary) 
+</li>
+<li><strong>minimum</strong>: 
+<tt>&lt;min/&gt;</tt> (n-ary) 
+</li>
+<li><strong>maximum</strong>: 
+<tt>&lt;max/&gt;</tt> (n-ary) 
+</li>
+<li><strong>mean (arithmetic)</strong>: 
+<tt>&lt;mean/&gt;</tt> (n-ary) 
+</li>
+<li><strong>standard deviation</strong>: 
+<tt>&lt;sdev/&gt;</tt> (n-ary) 
+</li>
+</ul>
+<p>
+Assuming we have a document with two metrics <tt>PAPI_TOT_CYC</tt> (cycles) and <tt>PAPI_FP_INS</tt> (floating point operations) we could compute cycles/FLOP: 
+<p>
+<pre>
+  &lt;METRIC name="cyc/fp" displayName="..." percent="false"&gt;
+    &lt;COMPUTE&gt;
+      &lt;math&gt;
+        &lt;apply&gt; &lt;divide/&gt;
+          &lt;ci&gt;PAPI_TOT_CYC&lt;/ci&gt;
+          &lt;ci&gt;PAPI_FP_INS&lt;/ci&gt;
+        &lt;/apply&gt;
+      &lt;/math&gt;
+    &lt;/COMPUTE&gt;
+  &lt;/METRIC&gt;
+</pre>
+<p>
+</li>
+</ul>
+<p>
+</li>
+<li>End document type. 
+<ul compact>
+<tt>&lt;/HPCPROF&gt;</tt> 
+</li>
+</ul>
+<p>
+</li>
+</ul>
+<p>
+<h2><a name="section_9">Examples</a></h2>
+
+<p>
+<h4><a name="section_10">Derived or Computed Metrics</a></h4>
+
+<p>
+<ul compact>
+<p>
+<li><strong>Cycles per instruction</strong>.
+<pre>
+  &lt;METRIC name="CPI" displayName="..." percent="false"&gt;
+    &lt;COMPUTE&gt;
+      &lt;math&gt;
+        &lt;apply&gt; &lt;divide/&gt;
+          &lt;ci&gt;PAPI_TOT_CYC&lt;/ci&gt;
+          &lt;ci&gt;PAPI_TOT_INS&lt;/ci&gt;
+        &lt;/apply&gt;
+      &lt;/math&gt;
+    &lt;/COMPUTE&gt;
+  &lt;/METRIC&gt;
+</pre>
+<p>
+</li>
+<li><strong>Unrealized FLOPS</strong>. Assume a processor core that can issue three floating point operations per cycle. Then unrealized FLOPS could be computed as:
+<pre>
+  &lt;METRIC name="unrealized FLOPS" displayName="..." percent="false"&gt;
+    &lt;COMPUTE&gt;
+      &lt;math&gt;
+        &lt;apply&gt; &lt;minus/&gt;
+          &lt;apply&gt; &lt;times/&gt; &lt;ci&gt;PAPI_TOT_CYC&lt;/ci&gt; &lt;cn&gt;3&lt;/cn&gt; &lt;/apply&gt;
+          &lt;ci&gt;PAPI_FP_INS&lt;/ci&gt;
+        &lt;/apply&gt;
+      &lt;/math&gt;
+    &lt;/COMPUTE&gt;
+  &lt;/METRIC&gt;
+</pre>
+<p>
+</li>
+<li><strong>Wait cycles</strong>. Assume a processor core with a 2 GHz frequency and a wall clock metric (WALLCLK) measured in seconds. Then we can compute wait cycles as the difference between wall clock cycles and user cycles.
+<p>
+<pre>
+  &lt;METRIC name="wall-cyc" displayName="..." percent="true"&gt;
+    &lt;COMPUTE&gt;
+      &lt;math&gt;
+        &lt;apply&gt; &lt;times/&gt;
+          &lt;ci&gt;WALLCLK&lt;/ci&gt;
+          &lt;cn&gt;2000000000&lt;/cn&gt;
+        &lt;/apply&gt;
+      &lt;/math&gt;
+    &lt;/COMPUTE&gt;
+  &lt;/METRIC&gt;
+  
+  &lt;METRIC name="wait-cyc" displayName="..." percent="true"&gt;
+    &lt;COMPUTE&gt;
+      &lt;math&gt;
+        &lt;apply&gt; &lt;minus/&gt;
+          &lt;ci&gt;wall-cyc&lt;/ci&gt;
+          &lt;ci&gt;PAPI_TOT_CYC&lt;/ci&gt;
+        &lt;/apply&gt;
+      &lt;/math&gt;
+    &lt;/COMPUTE&gt;
+  &lt;/METRIC&gt;
+</pre>
+<p>
+</li>
+<li><strong>TLB miss rate</strong>. (data TLB misses + instruction TLB misses)/cycles
+<p>
+</li>
+<li><strong>Memory traffic at level L_k</strong>. (L_{k-1} load misses + L_{k-1} store misses) * (L_{k-1} cache line size)
+<p>
+</li>
+<li><strong>Memory bandwidth consumed at level L_k</strong>. (L_k traffic)/(wall clock time)
+<p>
+</li>
+</ul>
+<p>
+<h2><a name="section_11">See Also</a></h2>
+
+<p>
+<a href="hpctoolkit.html"><em>hpctoolkit</em>(1)
+</a>.
+<p>
+<h2><a name="section_12">Version</a></h2>
+
+<p>
+Version: 2017.11 of  2011/02/22.
+<p>
+<h2><a name="section_13">License and Copyright</a></h2>
+
+<p>
+<dl compact>
+<dt>Copyright</dt>
+<dd> &copy; 2002-2017, Rice University. 
+</dd>
+<dt>License</dt>
+<dd> See <tt>README.License</tt>.
+</dd>
+</dl>
+<p>
+<h2><a name="section_14">Authors</a></h2>
+
+<p>
+Nathan Tallent <br>
+
+John Mellor-Crummey <br>
+
+Rob Fowler <br>
+
+Rice HPCToolkit Research Group <br>
+
+Email: <a href ="mailto:hpctoolkit-forum =at= rice.edu"><tt>hpctoolkit-forum =at= rice.edu</tt></a>
+<br>
+WWW: <a href ="http://hpctoolkit.org"><tt>http://hpctoolkit.org</tt></a>.
+<p>
+</body>
+</html>
+<!-- NOTE: This file is generated, DO NOT EDIT. -->

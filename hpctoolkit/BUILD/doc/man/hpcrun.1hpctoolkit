@@ -1,0 +1,385 @@
+'\" t
+.\" Manual page created with latex2man on Mon Nov 20 15:36:21 EST 2017
+.\" NOTE: This file is generated, DO NOT EDIT.
+.de Vb
+.ft CW
+.nf
+..
+.de Ve
+.ft R
+
+.fi
+..
+.TH "HPCRUN" "1" " 2014/03/05" "The HPCToolkit Performance Tools " "The HPCToolkit Performance Tools "
+.SH NAME
+
+.PP
+hpcrun
+is a call path profiler based on statistical sampling. 
+It supports multiple sample sources during one execution. 
+hpcrun
+profiles complex applications (forks, execs, threads and dynamic linking) and may be used in conjunction with parallel process launchers such as MPICH\&'s mpiexec
+and SLURM\&'s srun\&.
+.PP
+See \fIhpctoolkit\fP(1)
+for an overview of \fBHPCToolkit\fP\&.
+.PP
+.SH SYNOPSIS
+
+.PP
+hpcrun
+[\fBprofiling\-options\fP]
+\fIcommand\fP
+[\fBcommand\-arguments\fP]
+.PP
+hpcrun
+[\fBinfo\-options\fP]
+.PP
+.SH DESCRIPTION
+
+.PP
+hpcrun
+profiles the execution of an arbitrary command \fIcommand\fP
+using statistical sampling (rather than instrumentation). 
+It collects per\-thread call path profiles that represent the full calling context of sample points. 
+Sample points may be generated from multiple simultaneous sampling sources. 
+hpcrun
+profiles complex applications that use forks, execs, threads, and dynamic linking/unlinking; it may be used in conjuction with parallel process launchers such as MPICH\&'s mpiexec
+and SLURM\&'s srun\&.
+.PP
+To profile a statically linked executable, make sure to link with \fIhpclink\fP(1)
+\&.
+.PP
+To configure hpcrun\&'s
+sampling sources, specify events and periods using the \-e/\-\-event
+option. 
+For an event \fIe\fP
+and period \fIp\fP,
+after every \fIp\fP
+instances of \fIe\fP,
+a sample is generated that causes hpcrun
+to inspect the and record information about the monitored \fIcommand\fP\&.
+.PP
+When \fIcommand\fP
+terminates, a profile measurement databse will be written to the directory:
+.br
+\fB \fP\fB \fP\fB \fPhpctoolkit\-\fIcommand\fP\-measurements[\-\fIjobid\fP]
+.br
+where \fIjobid\fP
+is a PBS or Sun Grid Engine job identifier. 
+.PP
+hpcrun
+enables a user to abort a process and write the partial profiling data to disk by sending the Interrupt signal (INT or Ctrl\-C). 
+This can be extremely useful on long\-running or misbehaving applications. 
+.PP
+.SH ARGUMENTS
+
+.PP
+.TP
+\fIcommand\fP
+ The command to profile. 
+.TP
+\fIcommand\-arguments\fP
+ Arguments to the command to profile. 
+.PP
+Default values for an option\&'s optional arguments are shown in {}\&. 
+.PP
+.SS OPTIONS: INFORMATIONAL
+.PP
+.TP
+\fB\-l\fP, \fB\-L\fP, \fB\-\-list\-events\fP
+ List available events. (N.B.: some may not be profilable) 
+.PP
+.TP
+\fB\-V\fP, \fB\-\-version\fP
+ Print version information. 
+.PP
+.TP
+\fB\-h\fP, \fB\-\-help\fP
+ Print help. 
+.PP
+.SS OPTIONS: PROFILING
+.PP
+.TP
+\fB\-e\fP \fIevent[@period]\fP, \fB\-\-event\fP \fIevent[@period]\fP
+ An event to profile and its corresponding sample period. \fIevent\fP
+may be either a PAPI, native processor event, or WALLCLOCK (microseconds). May pass multiple times as implementations permits. {WALLCLOCK@5000} 
+.RS
+.TP
+.B *
+It is recommended to always specify the sampling period for each profiling event. 
+.TP
+.B *
+The special event WALLCLOCK may be used to profile the `wall clock.\&' It may be used only \fIonce\fP and cannot be used with another event. Its period is in microseconds.
+.TP
+.B *
+Hardware and drivers 1) limit the maximum number of events that can be monitored simultaneously, and 2) forbid certain combinations of events. 
+.TP
+.B *
+See the ``Sample sources\&'' under \fBNOTES\fP for additional details.
+.RE
+.RS
+.PP
+.RE
+.TP
+\fB\-t\fP, \fB\-\-trace\fP
+ Generate a call path trace (in addition to a call path profile). 
+.PP
+.TP
+\fB\-f\fP \fIfrac\fP, \fB\-fp\fP \fIfrac\fP, \fB\-\-process\-fraction\fP \fIfrac\fP
+ Measure only a fraction \fIfrac\fP
+of the execution\&'s processes. 
+For each process, enable measurement (of all threads) with probability \fIfrac\fP;
+\fIfrac\fP
+is a real number (0.10) or a fraction (1/10) between 0 and 1. 
+(To minimize perturbations, when a process is disabled, all threads in a process still receive sampling interrupts, but they are ignored.) 
+.PP
+.TP
+\fB\-r\fP, \fB\-\-retain\-recursion\fP
+ Normally, hpcrun will collapse (simple) recursive call chains 
+to a single node. This option disables that behavior: all 
+elements of a recursive call chain are recorded 
+NOTE: If the user employs the RETCNT sample source, then this 
+option is enabled: RETCNT implies *all* elements of 
+call chains, including recursive elements, are recorded. 
+.PP
+.TP
+\fB\-o\fP \fIoutpath\fP, \fB\-\-output\fP \fIoutpath\fP
+ Directory for output data. 
+{hpctoolkit\-<command>\-measurements[\-<jobid>]} 
+.PP
+.RS
+Bug: Without a \fIjobid\fP
+or an output option, multiple profiles of the same <command> will be placed in the same output directory. 
+.RE
+.RS
+.PP
+.RE
+.PP
+.SH ENVIRONMENT VARIABLES
+
+For most systems, hpcrun
+requires no special environment variable settings. 
+There are two situations, however, where hpcrun,
+to function correctly, 
+\fImust\fP
+refer to environment variables. These environment variables, and 
+corresponding situations are: 
+.RE
+.TP
+[HPCTOOLKIT] To function correctly, hpcrun
+must know 
+the location of the HPCToolkit
+top\-level installation directory. 
+The hpcrun
+script uses elements of the installation lib
+and 
+libexec
+subdirectories. For most systems, the 
+installation procedure ensures that hpcrun
+can find the requisite 
+components. Some parallel job launchers, however, will \fIcopy\fP
+the 
+hpcrun
+script to a different location from the installed base. If your 
+system uses this copying mechanism, you must set the HPCTOOLKIT 
+environment variable to the top\-level installation directory. 
+.PP
+.SH EXAMPLES
+
+.PP
+Assume we wish to profile the application zoo\&.
+The following examples lists some useful events for different processor architectures. 
+In each case, the special option \-\-
+is used to clearly demarcate the end of hpcrun
+options. 
+.PP
+.TP
+1.
+hpcrun \-e WALLCLOCK@5000 zoo 
+.PP
+.TP
+2.
+Opteron, (Rev B\-F) 
+.RS
+.TP
+1.
+hpcrun \-e DC_L2_REFILL@1300013 \-e PAPI_L2_DCM@510011 \-e PAPI_STL_ICY@5300013 \-e PAPI_TOT_CYC@13000019 zoo (DC_L2_REFILL is an approximation of L1 D\-cache misses). 
+.TP
+2.
+hpcrun \-e PAPI_L2_DCM@510011 \-e PAPI_TLB_DM@510013 \-e PAPI_STL_ICY@5300013 \-e PAPI_TOT_CYC@13000019 zoo 
+.RE
+.RS
+.PP
+.RE
+.PP
+.SH NOTES
+
+.PP
+.SS SAMPLE SOURCES
+.PP
+hpcrun
+uses the PAPI library to provide access to hardware performance counter events. 
+If you have not configured HPCToolkit to use the PAPI library, you will be unable to measure hardware performance counter events. 
+.PP
+The PAPI library supports a large collection of hardware counter events. 
+Some events have standard names across all platforms, e.g. PAPI_TOT_CYC, the event that measures total cycles. 
+In addition to events whose names begin with the PAPI_ prefix, platforms also provide access to a set of native events with names that are specific to the platform\&'s processor. 
+A complete list of events supported by the PAPI library for your platform may be obtained by using the \-\-list\-events
+option. 
+Any event whose name begins with the PAPI_ prefix that is listed as "Profilable" can be used as an event in a sampling source \-\-\- provided it does not conflict with another event. 
+.PP
+The precise rules for selecting good events and periods are complex. 
+.PP
+.RE
+.TP
+.B *
+\fBChoosing sampling events.\fP
+We recommend using PAPI events in general. 
+However, some PAPI events are not profilable because of PAPI implementation details. 
+Also, PAPI\&'s standard event list may not cover an architectural feature you are interested in. 
+In such cases, it is necessary to resort to native events. 
+In many cases, you will have to consult the architecture\&'s manual to fully understand what the event means: there is no standard event list or naming scheme and events sometimes have unusual meanings. 
+.PP
+.TP
+.B *
+\fBNumber of sampling events.\fP
+Currently, hpcrun does not multiplex hardware counters. 
+This means that the number of events that you may concurrently profile against is limited by your architecture\&'s performance monitoring unit. 
+Note that some architectures hard\-wire one or more counters to a specific event (such as cycles). 
+.PP
+.TP
+.B *
+\fBChoosing sampling periods.\fP
+The key requirement in choosing sampling periods is that you obtain enough samples to provide statistical significance. 
+We usually recommend a sampling rate between 100s\-1000s of samples per second. 
+This usually only produces 1\-5% execution time overhead. 
+.PP
+Choosing sampling rates depends on the architecture and sometimes the application. 
+.PP
+Choosing periods for cycle and instruction\-related events are usually easy. 
+Cycles directly relates to the clock speed. 
+Instruction\-related events relates to the issue rate and width. 
+.PP
+Choosing periods for other events seems harder because different applications uses resources differently. 
+For example, some applications are memory intensive and others are not. 
+However, if the goal is to identify rate\-limiting factors of the architecture, then it is not necessary to consider the application. 
+For example, if the goal is to determine whether L2 D\-cache latency is a limiting factor, then it is only necessary to work backward from the architecture\&'s specifications to determine what number of L2 D\-cache misses per second would be problematic. 
+.PP
+.TP
+.B *
+\fBArchitectural event conflicts.\fP
+With some performance monitoring units, certain events may not be concurrently used with other events. 
+.PP
+.TP
+.B *
+\fBArchitectural interrupt delay.\fP
+On most out\-of\-order pipelined architectures, a hardware counter interrupt is not precisely attributed to the instruction that induced the counter to overflow. 
+The gap is commonly 50\-70 instructions. 
+This means that one should not assume that aggregation at the source line level is fully precise. 
+(E.g., if a L1 D\-cache miss is attributed to a statement that has been compiled to register\-only operations, assume the miss is attributed to a nearby load.) 
+However, aggregation at the procedure and loop level is reliable. 
+.PP
+.TP
+.B *
+\fBSystem itimer (WALLCLOCK).\fP
+On Linux systems, the kernel will not deliver itimer interrupts faster than the unit of a jiffy, which defaults to 4 milliseconds; see the itimer man page. 
+One can configure the kernel to use a value as small as 1 millisecond, but it is unlikely the kernel will actually deliver itimer signals at that rate when a period of 1000 microseconds is requested. 
+.PP
+However, on Linux one can get quite close to the kernel Hz rate by setting the itimer interval to something less than the Hz rate. 
+For example, if the Hz rate is 1000 microseconds, one can use 500 microseconds (or just 1) and obtain about 999 interrupts per second. 
+.PP
+.SS PLATFORM\-SPECIFIC NOTES
+.SS Cray XE and XK
+When using dynamically linked binaries on Cray XE and XK systems, you 
+should add the HPCTOOLKIT environment variable to your launch 
+script. Set HPCTOOLKIT to the top\-level HPCToolkit install 
+prefix (the directory containing the bin,
+lib
+and 
+libexec
+subdirectories) and export it to the environment. This is 
+only needed for running dynamically linked binaries. For example: 
+.PP
+.Vb
+#!/bin/sh
+#PBS \-l mppwidth=#nodes
+#PBS \-l walltime=00:30:00
+#PBS \-V
+
+export HPCTOOLKIT=/path/to/hpctoolkit/install/directory
+
+    ...Rest of Script...
+.Ve
+.PP
+If HPCTOOLKIT is not set, you may see errors such as the 
+following in your job\&'s error log. 
+.PP
+.Vb
+/var/spool/alps/103526/hpcrun: Unable to find HPCTOOLKIT root directory.
+Please set HPCTOOLKIT to the install prefix, either in this script,
+or in your environment, and try again.
+.Ve
+.PP
+The problem is that the Cray job launcher copies the hpcrun
+script to a directory somewhere below /var/spool/alps/
+and runs 
+it from there. By moving hpcrun
+to a different directory, this 
+breaks hpcrun\&'s
+method for finding its own install directory. 
+The solution is to add HPCTOOLKIT to your environment so that 
+hpcrun
+can find its install directory. 
+.PP
+.SS MISCELLANEOUS
+.PP
+.TP
+.B *
+hpcrun uses preloaded shared libraries to initiate profiling. For this reason, it cannot be used to profile setuid programs.
+.TP
+.B *
+hpcrun may not be able to profile programs that themselves use preloading.
+.PP
+.SH SEE ALSO
+
+.PP
+\fIhpctoolkit\fP(1)
+\&.
+.br
+\fIhpclink\fP(1)
+\&.
+.PP
+.SH VERSION
+
+.PP
+Version: 2017.11 of  2014/03/05\&.
+.PP
+.SH LICENSE AND COPYRIGHT
+
+.PP
+.TP
+Copyright 
+(C)2002\-2017, Rice University. 
+.TP
+License 
+See README.License\&.
+.PP
+.SH AUTHORS
+
+.PP
+John Mellor\-Crummey 
+.br
+Nathan Tallent 
+.br
+Mark Krentel 
+.br
+Mike Fagan 
+.br
+Rice HPCToolkit Research Group 
+.br
+Email: \fBhpctoolkit\-forum =at= rice.edu\fP
+.br
+WWW: \fBhttp://hpctoolkit.org\fP\&.
+.PP
+.\" NOTE: This file is generated, DO NOT EDIT.

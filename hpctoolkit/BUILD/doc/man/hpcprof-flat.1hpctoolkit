@@ -1,0 +1,465 @@
+'\" t
+.\" Manual page created with latex2man on Mon Nov 20 15:36:21 EST 2017
+.\" NOTE: This file is generated, DO NOT EDIT.
+.de Vb
+.ft CW
+.nf
+..
+.de Ve
+.ft R
+
+.fi
+..
+.TH "HPCPROF\-FLAT" "1" " 2011/02/22" "The HPCToolkit Performance Tools " "The HPCToolkit Performance Tools "
+.SH NAME
+
+.PP
+hpcprof\-flat
+correlates `flat\&' (IP histograms) profile metrics with static source code structure. See \fIhpctoolkit\fP(1)
+for an overview of \fBHPCToolkit\fP\&.
+.PP
+.SH SYNOPSIS
+
+.PP
+hpcprof\-flat
+[\fBoutput\-options\fP]
+[\fBcorrelation\-options\fP]
+\fIprofile\-file\fP\&.\&.\&.
+.PP
+hpcprof\-flat
+[\fBoutput\-options\fP]
+\-\-config \fIconfig\-file\fP
+.PP
+.SH DESCRIPTION
+
+.PP
+hpcprof\-flat
+correlates flat profiling metrics with static source code structure and (by default) generates an Experiment database for use with \fIhpcviewer\fP(1)
+\&.
+hpcprof\-flat
+is invoked in one of two ways. 
+In the former, correlation options are specified on the command line along with a list of flat profile files. 
+In the latter, these options along with derived metrics are specified in the configuration file \fIconfig\-file\fP\&.
+Note that the first mode is generally sufficient since derived metrics may be computed in \fIhpcviewer\fP(1)
+\&.
+However, to facilitate the batch processing of the second mode, during the first mode, a sample configuration file (config.xml)
+is generated within the Experiment database. 
+See the section \fIConfiguration File\fP
+below for more details about its syntax. 
+.PP
+For optimal results, structure information from \fIhpcstruct\fP(1)
+should be provided.
+Without structure information, hpcprof\-flat will default to correlation using line map information. 
+.PP
+.SH ARGUMENTS
+
+.PP
+.TP
+\fIprofile\-file...\fP
+ A list of flat profile files. 
+.TP
+\fIconfig\-file\fP
+ The hpcprof\-flat
+configuration file. 
+.PP
+Default values for an option\&'s optional arguments are shown in {}\&. 
+.PP
+.SS OPTIONS: GENERAL
+.PP
+.TP
+\fB\-v\fP [\fIn\fP], \fB\-\-verbose\fP [\fIn\fP]
+ Verbose: generate progress messages to stderr at verbosity level \fIn\fP\&.
+{1} (Use n=3 to debug path replacement if metric and program structure is not properly matched.) 
+.PP
+.TP
+\fB\-V\fP, \fB\-\-version\fP
+ Print version information. 
+.PP
+.TP
+\fB\-h\fP, \fB\-\-help\fP
+ Print help. 
+.PP
+.TP
+\fB\-\-debug\fP [\fIn\fP]
+ Debug: use debug level \fIn\fP\&.
+{1} 
+.PP
+.SS OPTIONS: SOURCE STRUCTURE CORRELATION
+.PP
+.TP
+\fB\-\-name\fP \fIname\fP, \fB\-\-title\fP \fIname\fP
+ Set the database\&'s name (title) to \fIname\fP\&.
+.PP
+.TP
+\fB\-I\fP \fIpath\fP, \fB\-\-include\fP \fIpath\fP
+ Use \fIpath\fP
+when searching for source files. For a recursive search, append a \&'*\&' after the last slash, e.g., '/mypath/*' (quote or escape to protect from the shell). May pass multiple times. 
+.PP
+.TP
+\fB\-S\fP \fIfile\fP, \fB\-\-structure\fP \fIfile\fP
+ Use \fIhpcstruct\fP(1)
+structure file \fIfile\fP
+for correlation. May pass multiple times (e.g., for shared libraries). 
+.PP
+.TP
+\fB\-R\fP \fI\&'old\-path=new\-path\&'\fP, \fB\-\-replace\-path\fP \fI\&'old\-path=new\-path\&'\fP
+ Substitute instances of \fIold\-path\fP
+with \fInew\-path\fP;
+apply to all paths (e.g., a profile\&'s load map and source code) for which \fIold\-path\fP
+is a prefix. Use \&'
+.br\&'to escape instances of \&'=\&' within a path. May pass multiple times. 
+.PP
+Use this option when a profile or binary contains references to files that have been relocated, such as might occur with a file system change. 
+.PP
+.SS OPTIONS: OUTPUT
+.PP
+.TP
+\fB\-o\fP \fIdb\-path\fP, \fB\-\-db\fP \fIdb\-path\fP, \fB\-\-output\fP \fIdb\-path\fP
+ Specify Experiment database name \fIdb\-path\fP\&.
+{\&./experiment\-db}
+.TP
+\fB\-\-src\fP [\fIyes | no\fP], \fB\-\-source\fP [\fIyes | no\fP]
+ Whether to copy source code files into Experiment database. {yes} By default, hpcprof\-flat
+copies source files with performance metrics and that can be reached by PATH/REPLACE statements, resulting in a self\-contained dataset that does not rely on an external source code repository. Note that if copying is suppressed, the database is no longer self\-contained. 
+.PP
+.SS OUTPUT FORMATS
+.PP
+Select different output formats and optionally specify the output filename \fIfile\fP
+(located within the Experiment database). The output is sparse in the sense that it ignores program areas without profiling information. (Set \fIfile\fP
+to \&'\-\&' to write to stdout.) 
+.PP
+.TP
+\fB\-x\fP [\fIfile\fP], \fB\-\-experiment\fP [\fIfile\fP]
+ Default. ExperimentXML format. {experiment.xml}\&.
+NOTE: To disable, set \fIfile\fP
+to no\&. 
+.PP
+.SH CONFIGURATION FILE
+
+.PP
+A hpcprof\-flat
+configuration file is an XML document of type HPCPROF\&.
+The following briefly describes its syntax. 
+.PP
+.TP
+.B *
+Begin document type. 
+.RS
+<HPCPROF> 
+.RE
+.RS
+.PP
+.RE
+.TP
+.B *
+(Optional) Use \fImy\-title\fP to name the Experiment database.
+.RS
+<TITLE name="\fImy\-title\fP"/>
+.RE
+.RS
+.PP
+.RE
+.TP
+.B *
+(Optional) A set of PATH directives specifying path names to search for source files. 
+\fIpath\fP
+is a relative or absolute path containing source code to which performance data should be correlated. 
+In order to recursively search a directory, append an escaped `*\&'
+after the last slash, e.g., /mypath/\\* (escaping is for the shell). 
+.RS
+<PATH name="\fIpath\fP"/>
+.RE
+.RS
+.PP
+.RE
+.TP
+.B *
+(Optional) A set of REPLACE directives can be used to define one path prefix to operationally match another prefix occuring in profile data files or in a program structure file. This can be particularly useful when trying to compare performance metrics between machines with different file structures, e.g., because the executables or the source files are installed in different places. 
+.RS
+<REPLACE in="\fIold\-path\-prefix\fP"
+out="\fInew\-path\-prefix\fP"
+/>
+.RE
+.RS
+.PP
+.RE
+.TP
+.B *
+(Optional) A set of STRUCTURE directives providing program structure files created using \fIhpcstruct\fP(1)
+\&.
+.RS
+<STRUCTURE name="\fIprogram.psxml\fP"/>
+.br
+<STRUCTURE name="\fIkey\-dso1.psxml\fP"/>
+.br
+<STRUCTURE name="\fIkey\-dso2.psxml\fP"/>
+.br
+.RE
+.RS
+.PP
+.RE
+.TP
+.B *
+One or more metrics. A metric may be of two types, native or derived. Metrics are introduced using the METRIC element
+.PP
+.RS
+<METRIC name="\fIname\fP"
+displayName="\fIname\-in\-display\fP"
+display="true|false"
+percent="true|false">
+.br
+\fB \fP\fB \fP\&.\&.\&.
+.br
+</METRIC>
+.RE
+.RS
+.PP
+which has several attributes. 
+.PP
+.RS
+.RE
+.TP
+.B *
+\fBname\fP\&. A unique name. This name is used when creating derived metrics that are expressions of other metrics.
+.TP
+.B *
+\fBdisplayName\fP\&. A display name needs not be unique.
+.TP
+.B *
+\fBdisplay\fP\&. Controls metric visibility. One might read a metric and not display it because it is only useful as input to some computed metric.
+.TP
+.B *
+\fBpercent\fP\&. Indicates whether the viewer should display a column of percentages computed as the ratio of the metric for this scope to the metric for the whole program. Percents are useful when metrics are computed by summing contributions from descendants in the scope tree, but are meaningless for computed metrics such as ratio of flops/memory access in a scope.
+.RE
+.RS
+.PP
+The two metric types are 
+.RS
+.RE
+.TP
+.B *
+\fBNative or FILE metrics\fP\&. This metric is read from a file which can be of type HPCRUN (from 
+\fIhpcrun\-flat\fP(1)
+) or PROFILE (from \fIhpcproftt\fP(1)).
+.RS
+.PP
+<METRIC name="m1" ...>
+.br
+<FILE name="\fIfile1\fP"
+select="\fIshort\-name\-in\-file1\fP"
+type="HPCRUN|PROFILE"/>
+.br
+</METRIC>
+.br
+.PP
+Since a file may contain multiple metrics, the FILE
+element has an optional `select\&' attribute to identify a particular metric from the file. Metrics are identified by their `shortName\&' values which are typically zero\-based indices. The default `select\&' value is 0, which corresponds to the first metric. 
+.PP
+There is one important difference in how each type is handled. HPCRUN files are correlated to source code using the object code addresses annotations of STRUCTURE files; thus, they require valid STRUCTURE information. In contrast, PROFILE files are correlated by source line level information. 
+.PP
+.RE
+.TP
+.B *
+\fBDerived or COMPUTE metrics.\fP Derived metrics are specified by a COMPUTE element containing a MathML equation in terms of metrics defined earlier in the HPCPROF document. hpcprof\-flat supports the following operands
+.RS
+.TP
+.B *
+\fBconstants\fP: 
+<cn>2</cn> 
+.TP
+.B *
+\fBvariables\fP: 
+<ci>m1</ci> (used to refer to other metrics) 
+.RE
+.RS
+.PP
+and the following MathML operators (used within <apply>): 
+.RS
+.RE
+.TP
+.B *
+\fBnegation\fP: 
+<minus/> (1\-ary) 
+.TP
+.B *
+\fBsubtraction\fP: 
+<minus/> (2\-ary) 
+.TP
+.B *
+\fBaddition\fP: 
+<plus/> (n\-ary) 
+.TP
+.B *
+\fBmultiplication\fP: 
+<times/> (n\-ary) 
+.TP
+.B *
+\fBdivision\fP: 
+<divide/> (2\-ary) 
+.TP
+.B *
+\fBexponentiation\fP: 
+<power/> (2\-ary) 
+.TP
+.B *
+\fBminimum\fP: 
+<min/> (n\-ary) 
+.TP
+.B *
+\fBmaximum\fP: 
+<max/> (n\-ary) 
+.TP
+.B *
+\fBmean (arithmetic)\fP: 
+<mean/> (n\-ary) 
+.TP
+.B *
+\fBstandard deviation\fP: 
+<sdev/> (n\-ary) 
+.RE
+.RS
+.PP
+Assuming we have a document with two metrics PAPI_TOT_CYC (cycles) and PAPI_FP_INS (floating point operations) we could compute cycles/FLOP: 
+.PP
+.Vb
+  <METRIC name="cyc/fp" displayName="..." percent="false">
+    <COMPUTE>
+      <math>
+        <apply> <divide/>
+          <ci>PAPI_TOT_CYC</ci>
+          <ci>PAPI_FP_INS</ci>
+        </apply>
+      </math>
+    </COMPUTE>
+  </METRIC>
+.Ve
+.PP
+.RE
+.RE
+.PP
+.RE
+.TP
+.B *
+End document type. 
+.RS
+</HPCPROF> 
+.RE
+.RS
+.PP
+.RE
+.PP
+.SH EXAMPLES
+
+.PP
+.SS DERIVED OR COMPUTED METRICS
+.PP
+.RE
+.TP
+.B *
+\fBCycles per instruction\fP\&.
+.Vb
+  <METRIC name="CPI" displayName="..." percent="false">
+    <COMPUTE>
+      <math>
+        <apply> <divide/>
+          <ci>PAPI_TOT_CYC</ci>
+          <ci>PAPI_TOT_INS</ci>
+        </apply>
+      </math>
+    </COMPUTE>
+  </METRIC>
+.Ve
+.PP
+.TP
+.B *
+\fBUnrealized FLOPS\fP\&. Assume a processor core that can issue three floating point operations per cycle. Then unrealized FLOPS could be computed as:
+.Vb
+  <METRIC name="unrealized FLOPS" displayName="..." percent="false">
+    <COMPUTE>
+      <math>
+        <apply> <minus/>
+          <apply> <times/> <ci>PAPI_TOT_CYC</ci> <cn>3</cn> </apply>
+          <ci>PAPI_FP_INS</ci>
+        </apply>
+      </math>
+    </COMPUTE>
+  </METRIC>
+.Ve
+.PP
+.TP
+.B *
+\fBWait cycles\fP\&. Assume a processor core with a 2 GHz frequency and a wall clock metric (WALLCLK) measured in seconds. Then we can compute wait cycles as the difference between wall clock cycles and user cycles.
+.PP
+.Vb
+  <METRIC name="wall\-cyc" displayName="..." percent="true">
+    <COMPUTE>
+      <math>
+        <apply> <times/>
+          <ci>WALLCLK</ci>
+          <cn>2000000000</cn>
+        </apply>
+      </math>
+    </COMPUTE>
+  </METRIC>
+  
+  <METRIC name="wait\-cyc" displayName="..." percent="true">
+    <COMPUTE>
+      <math>
+        <apply> <minus/>
+          <ci>wall\-cyc</ci>
+          <ci>PAPI_TOT_CYC</ci>
+        </apply>
+      </math>
+    </COMPUTE>
+  </METRIC>
+.Ve
+.PP
+.TP
+.B *
+\fBTLB miss rate\fP\&. (data TLB misses + instruction TLB misses)/cycles
+.PP
+.TP
+.B *
+\fBMemory traffic at level L_k\fP\&. (L_{k\-1} load misses + L_{k\-1} store misses) * (L_{k\-1} cache line size)
+.PP
+.TP
+.B *
+\fBMemory bandwidth consumed at level L_k\fP\&. (L_k traffic)/(wall clock time)
+.PP
+.SH SEE ALSO
+
+.PP
+\fIhpctoolkit\fP(1)
+\&.
+.PP
+.SH VERSION
+
+.PP
+Version: 2017.11 of  2011/02/22\&.
+.PP
+.SH LICENSE AND COPYRIGHT
+
+.PP
+.TP
+Copyright 
+(C)2002\-2017, Rice University. 
+.TP
+License 
+See README.License\&.
+.PP
+.SH AUTHORS
+
+.PP
+Nathan Tallent 
+.br
+John Mellor\-Crummey 
+.br
+Rob Fowler 
+.br
+Rice HPCToolkit Research Group 
+.br
+Email: \fBhpctoolkit\-forum =at= rice.edu\fP
+.br
+WWW: \fBhttp://hpctoolkit.org\fP\&.
+.PP
+.\" NOTE: This file is generated, DO NOT EDIT.

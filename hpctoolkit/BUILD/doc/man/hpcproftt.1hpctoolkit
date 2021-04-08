@@ -1,0 +1,315 @@
+'\" t
+.\" Manual page created with latex2man on Mon Nov 20 15:36:21 EST 2017
+.\" NOTE: This file is generated, DO NOT EDIT.
+.de Vb
+.ft CW
+.nf
+..
+.de Ve
+.ft R
+
+.fi
+..
+.TH "HPCPROFTT" "1" " 2012/04/19" "The HPCToolkit Performance Tools " "The HPCToolkit Performance Tools "
+.SH NAME
+
+.PP
+hpcproftt
+correlates `flat\&' profile metrics with either source code structure or object code and generates textual output suitable for a terminal. 
+Alternatively, it also generates textual dumps of profile files. 
+.PP
+.SH SYNOPSIS
+
+.PP
+hpcproftt
+[\-\-source] [\fBoptions\fP]
+\fIprofile\-file\fP\&.\&.\&.
+.PP
+hpcproftt
+\-\-object [\fBoptions\fP]
+\fIprofile\-file\fP\&.\&.\&.
+.PP
+hpcproftt
+\-\-dump \fIprofile\-file\fP\&.\&.\&.
+.PP
+.SH DESCRIPTION
+
+.PP
+hpcproftt
+correlates `flat\&' profile metrics with either source code structure (the first and default mode) or object code (second mode) and generates textual output suitable for a terminal (hence the tt, for teletype, in its name). 
+In both of these modes, hpcproftt
+expects a list of flat profile files. 
+hpcproftt
+also supports a third mode in which it generates textual dumps of profile files. 
+In this mode, the profile list may contain either flat or call path profile files. 
+.PP
+hpcproftt
+defaults to source code correlation mode. 
+Without any mode switch, it behaves as if passed \fB\-\-source=pgm,lm\fP\&.
+.PP
+\fBSource Source Structure Correlation\fP\&.
+First, hpcproftt
+creates raw metrics for every native event with in each profile file. 
+Derived summary metrics can be optionally created with the \fB\-\-metric\fP
+option. 
+All metrics are normalized to use the unit \&'events\&' rather than \&'samples\&' since this enables meaningful comparisons and derived metrics. 
+Since percents facilitate rapid comprehension (compared to values), all raw metrics display as percents; derived metrics likewise default to percent, if sensible. 
+.PP
+Then, hpcproftt
+correlates metrics to program structure. 
+If \fIhpcstruct\fP(1)
+structure information is available, this is used for correlation; if not, a simple \&'File | Procedure | Statement\&' structure is computed using the load module\&'s line map.
+.PP
+Finally, hpcproftt
+generates metric summaries and annotated source files to standard out. 
+Each metric summary compares a certain source structure element (such as a procedure) with all other elements of that type across the whole program. 
+Structure elements include: Program, Load Module, File, Procedure, Loop (requires \fIhpcstruct\fP(1)
+), and Statement.
+For example, the procedure summary shows (exclusive) metric values for each procedure in the program. 
+(Structure elements are pruned if all corresponding metrics are 0.) 
+Summaries are rank ordered by the first metric. 
+hpcproftt
+optionally annotates source files with Statement (line) level metrics. 
+Note that it can only annotate files found by combining debug information with \fB\-\-include\fP
+search paths. 
+.PP
+\fBObject Correlation\fP\&.
+.PP
+hpcproftt\&'s
+object correlation mode is intended for inspection of fine\-grained correlation. 
+In contrast to the source structure correlation mode, true summaries are not computed; rather (like an annotated source file) hpcproftt
+generates annotated object code, i.e., procedures and instructions. 
+Moreover, only raw metrics corresponding to the native events in \fBone\fP
+profile file may be correlated to the object code touched by those metrics. 
+Accordingly, hpcproftt
+creates raw metrics for every native event in one profile file. 
+Metrics use the unit \&'samples\&' rather than \&'events\&' and default to percents, though absolute values may optionally be displayed. 
+Procedures are pruned from the output if no associated metric totals to the provided threshold. 
+.PP
+Warnings: 
+.TP
+.B *
+On ISA\&'s with variable sized instructions, histogram buckets (4 bytes in size) may contain information for more than one instruction. 
+In this case, multiple instructions will report counts for the \fIsame\fP
+bucket. 
+.PP
+.TP
+.B *
+On some architectures, delays between event triggers, interrupt generation and sampling of the IP means that an event may be associated with a different instruction than one that caused the event. It is not abnormal for this gap to be 50\-70 instructions wide. 
+.PP
+.SH ARGUMENTS
+
+.PP
+.TP
+\fIprofile\-file\fP\&.\&.\&.
+ A list of flat profile files. 
+.PP
+Default values for an option\&'s optional arguments are shown in {}\&. 
+.PP
+.SS OPTIONS: GENERAL
+.PP
+.TP
+\fB\-v\fP [\fIn\fP], \fB\-\-verbose\fP [\fIn\fP]
+ Verbose: generate progress messages to stderr at verbosity level \fIn\fP\&.
+{1} 
+.TP
+\fB\-V\fP, \fB\-\-version\fP
+ Print version information. 
+.TP
+\fB\-h\fP, \fB\-\-help\fP
+ Print help. 
+.TP
+\fB\-\-debug\fP [\fIn\fP]
+ Debug: use debug level \fIn\fP\&.
+{1} 
+.PP
+.SS OPTIONS: SOURCE STRUCTURE CORRELATION
+.PP
+.TP
+\fB\-\-source\fP [\fI=all,sum,pgm,lm,f,p,l,s,src\fP]
+ .TP
+\fB\-\-src\fP [\fI=all,sum,pgm,lm,f,p,l,s,src\fP]
+ Correlate metrics to source code structure. 
+Use the following flags to control which source code structures appear in the output: 
+.RS
+.TP
+all 
+all summaries plus annotated source files 
+.TP
+sum 
+all summaries 
+.TP
+pgm 
+program summary 
+.TP
+lm 
+load module summary 
+.TP
+f 
+files summary 
+.TP
+p 
+procedure summary 
+.TP
+l 
+loop summary 
+.TP
+s 
+statement summary 
+.TP
+src 
+annotate source files with metrics; equivalent to \fB\-\-srcannot \&'*\&'\fP
+.RE
+.RS
+.PP
+Without \fB\-\-source\fP,
+the default set of flags is {pgm,lm}; with \fB\-\-source\fP,
+the default set is {sum}\&. 
+.PP
+.RE
+.TP
+\fB\-\-srcannot\fP \fIglob\fP
+ Annotate source files with path names that match file glob \fIglob\fP\&.
+(Protect glob characters from shell with single quotes or backslash.) 
+May pass multiple times to logically OR additional globs. 
+.PP
+.TP
+\fB\-M\fP \fImetric\fP, \fB\-\-metric\fP \fImetric\fP
+ Specify the set of metrics to compute, where \fImetric\fP
+is one of the following: 
+.RS
+.TP
+sum 
+Sum over threads/processes 
+.TP
+stats 
+Sum, Mean, StdDev (standard deviation), CoefVar (coefficient of variation), Min, Max over threads/processes 
+.TP
+thread 
+per\-thread/process metrics 
+.RE
+.RS
+.PP
+Default is \&'thread\&'\&. 
+.PP
+.RE
+.TP
+\fB\-I\fP \fIdir\fP, \fB\-\-include\fP \fIdir\fP
+ Use \fIdir\fP
+as a search directory to find source files. 
+For a recursive search, append a \&'*\&' after the last slash, e.g., '/mypath/*' (quote or escape to protect from the shell). 
+May pass multiple times. 
+.PP
+Note: With multiple search\-directory arguments, it may be the case that file \fIf\fP
+exists within more than one search directory. 
+In this case, the ambiguity is resolved in favor of the search directory that appears first on the command line. 
+.PP
+.TP
+\fB\-S\fP \fIfile\fP, \fB\-\-structure\fP \fIfile\fP
+ Use \fIhpcstruct\fP(1)
+structure file \fIfile\fP
+for correlation. 
+May pass multiple times (e.g., for shared libraries). 
+.PP
+.TP
+\fB\-R\fP \fI\&'old\-path=new\-path\&'\fP, \fB\-\-replace\-path\fP \fI\&'old\-path=new\-path\&'\fP
+ Substitute instances of \fIold\-path\fP
+with \fInew\-path\fP;
+apply to all paths (e.g., a profile\&'s load map and source code) for which \fIold\-path\fP
+is a prefix. 
+Use \&'\\\&' to escape instances of \&'=\&' within a path. May pass multiple times. 
+.PP
+Use this option when a profile or binary contains references to files that have been relocated, such as might occur with a file system change. 
+.PP
+.SS OPTIONS: OBJECT CORRELATION
+.PP
+.TP
+\fB\-\-object\fP [\fI=s\fP]
+ .TP
+\fB\-\-obj\fP [\fI=s\fP]
+ Correlate metrics with object code by annotating object code procedures and instructions. {} 
+.RS
+.TP
+.B *
+s: intermingle source line info with object code 
+.RE
+.RS
+.PP
+.RE
+.TP
+\fB\-\-objannot\fP \fIglob\fP
+ Annotate object procedures with (unmangled) names that match glob \fIglob\fP\&.
+(Protect glob characters from shell with single quotes or backslash.) 
+May pass multiple times to logically OR additional globs. 
+.PP
+.TP
+\fB\-\-obj\-threshold\fP \fIn\fP
+ Prune procedures with an event count < \fIn\fP
+{1} 
+.PP
+.TP
+\fB\-\-obj\-values\fP
+ Show raw metrics as values instead of percents 
+.PP
+.SS OPTIONS: DUMP RAW PROFILE DATA
+.PP
+.TP
+\fB\-\-dump\fP
+ Generate textual representation of raw profile data. 
+.PP
+.SH EXAMPLES
+
+.PP
+.TP
+.B *
+Assume we have collected flat profiling information using \fIhpcrun\-flat\fP(1)
+).
+Let the executable and profile be named poissonSolve
+and poissonSolve.PAPI_L2_DCM\-etc...,
+respectively. 
+Assume further that we wish to correlate derived summary metrics (Mean, RStdDev, Min, Max) with source code and generate summary tables. 
+To do this, execute: 
+.Vb
+    hpcproftt \-\-src \-\-metric=sum poissonSolve.hpcrun*
+.Ve
+.PP
+.TP
+.B *
+Using the same example as above, assume we wish to correlate the profile with object code. Execute the following command: 
+.Vb
+    hpcproftt \-\-obj poissonSolve.hpcrun*
+.Ve
+.PP
+.SH SEE ALSO
+
+.PP
+\fIhpctoolkit\fP(1)
+\&.
+.PP
+.SH VERSION
+
+.PP
+Version: 2017.11 of  2012/04/19\&.
+.PP
+.SH LICENSE AND COPYRIGHT
+
+.PP
+.TP
+Copyright 
+(C)2002\-2017, Rice University. 
+.TP
+License 
+See README.License\&.
+.PP
+.SH AUTHORS
+
+.PP
+Nathan Tallent 
+.br
+Rice HPCToolkit Research Group 
+.br
+Email: \fBhpctoolkit\-forum =at= rice.edu\fP
+.br
+WWW: \fBhttp://hpctoolkit.org\fP\&.
+.PP
+.\" NOTE: This file is generated, DO NOT EDIT.
